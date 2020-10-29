@@ -1,0 +1,42 @@
+---
+title: "Analysis"
+author: "Shih-Ni Prim"
+date: "2020-10-29"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(caret)
+```
+
+# Read in data  
+
+```{r}
+# delay means number of days between medical visits
+crossSectional <- read_csv("alzheimers/oasis_cross-sectional.csv")
+long <- read_csv("alzheimers/oasis_longitudinal.csv")
+heart <- read_csv("heart/heart.csv")
+```
+
+* CDR: clinical dementia rating
+* MMSE: Mini-Mental State Examination
+```{r}
+table(heart$target)
+```
+
+```{r}
+train <- sample(1:nrow(heart), size = nrow(heart)*0.8)
+test <- setdiff(1:nrow(heart), train)
+trainHeart <- heart[train,]
+testHeart <- heart[-train,]
+
+modelLookup("glm")
+fit <- train(as.factor(target) ~ ., data = trainHeart, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
+summary(fit)
+pred <- predict(fit, newdata = testHeart)
+confusionMatrix(as.factor(testHeart$target), pred)
+```
+
+
