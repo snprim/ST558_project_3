@@ -20,6 +20,3 @@ library(shinydashboard)
 
 Use `shiny::runGitHub("ST558_project_3", "snprim", ref = "main", subdir = "Bayes")` to run the app in your Rstudio.  
 
-
-
-[Analysis so far](Analysis.md)
