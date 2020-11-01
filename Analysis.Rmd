@@ -15,28 +15,79 @@ library(caret)
 
 ```{r}
 # delay means number of days between medical visits
+# MRI and alzeheimers
 crossSectional <- read_csv("alzheimers/oasis_cross-sectional.csv")
 long <- read_csv("alzheimers/oasis_longitudinal.csv")
-heart <- read_csv("heart/heart.csv")
+# breast cancer
+breast <- read_csv("data.csv")
+# disease prediction
+test <- read_csv("diseasePred/Testing.csv")
+train <- read_csv("diseasePred/Training.csv")
+# avocado
+avocado <- read_csv("avocado.csv")
 ```
 
 * CDR: clinical dementia rating
-* MMSE: Mini-Mental State Examination
-```{r}
-table(heart$target)
-```
+* MMSE: Mini-Mental State Examination  
 
 ```{r}
-train <- sample(1:nrow(heart), size = nrow(heart)*0.8)
-test <- setdiff(1:nrow(heart), train)
-trainHeart <- heart[train,]
-testHeart <- heart[-train,]
+table(train$prognosis)
+table(test$prognosis)
+```
+
+```{r, breast cancer}
+# breast$diag <- ifelse(breast$diagnosis == "M", 1, 0)
+breast1 <- breast %>% select(-X33)
+train1 <- sample(1:nrow(breast1), size = nrow(breast1)*0.8)
+test1 <- setdiff(1:nrow(breast1), train1)
+trainBreast <- breast1[train1,]
+testBreast <- breast1[-train1,]
 
 modelLookup("glm")
-fit <- train(as.factor(target) ~ ., data = trainHeart, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
-summary(fit)
-pred <- predict(fit, newdata = testHeart)
-confusionMatrix(as.factor(testHeart$target), pred)
+fit1 <- train(diagnosis ~ ., data = trainBreast, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
+summary(fit1)
+pred1 <- predict(fit1, newdata = testBreast)
+confusionMatrix(as.factor(testBreast$diagnosis), reference = pred1)
 ```
 
+```{r, disease prediction}
+unique(train$prognosis)
+fit2 <- train(prognosis ~ ., data = train, method = "knn", trControl = trainControl(method = "cv", number = 10), tuneGrid = expand.grid(data.frame(k = 2:10)))
+summary(fit2)
+pred2 <- predict(fit2, test)
+confusionMatrix(as.factor(test$prognosis), reference = pred2)
+```
+
+
+
+```{r, avocado}
+train3 <- sample(1:nrow(avocado), size = nrow(avocado)*0.8)
+test3 <- setdiff(1:nrow(avocado), train3)
+trainAvo <- avocado[train3,]
+testAvo <- avocado[-train3,]
+
+fit3 <- train(AveragePrice ~ ., trainAvo, method = "glm", trControl = trainControl(method = "cv", number = 10))
+pred3 <- predict(fit3, testAvo)
+postResample(pred3, testAvo$AveragePrice)
+```
+
+
+```{r, alzheimers}
+cross <- crossSectional[!is.na(crossSectional$CDR),]
+cross <- cross[!is.na(cross$SES),]
+cross$dementia <- as.factor(cross$CDR)
+# cross$dementia <- factor(ifelse(cross$CDR == 0, "normal",
+#                          ifelse(cross$CDR == 0.5, "very_mild",
+#                          ifelse(cross$CDR == 1, "mild",
+#                          ifelse(cross$CDR == 2, "moderate", "severe")))))
+cross <- select(cross, -Delay, -CDR, -ID, -Hand)
+train4 <- sample(1:nrow(cross), size = nrow(cross)*0.8)
+test4 <- setdiff(1:nrow(cross), train4)
+trainCross <- cross[train4,]
+testCross <- cross[-train4,]
+
+fit4 <- train(dementia ~ ., data = trainCross, method = "multinom", trControl = trainControl(method = "cv", number = 10), na.action = na.pass)
+pred4 <- predict(fit4, newdata = testCross)
+confusionMatrix(testCross$dementia, reference = pred4)
+```
 
