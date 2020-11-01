@@ -33,9 +33,12 @@ ui <- dashboardPage(
                                 fluidRow(
                                     withMathJax(),
                                     column(6, 
-                                           h3("About this datasetg")),
+                                           h3("About this datasetg"),
+                                           h4("This dataset can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic")))),
                                     column(6, 
-                                           h3("How to use this app"))
+                                           h3("How to use this app"),
+                                           h4("On the left hand side, you can see various tabs, which lead to different pages with various options.", span("On top there is a button where you can click to make the tabs disappear or appear.", style = "font-style:italic"), "By closing the tabs, the main body of the app appears larger.")
+                                           ),
                                 )
                             ),
                             tabItem(
