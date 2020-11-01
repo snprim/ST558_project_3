@@ -53,7 +53,7 @@ ui <- dashboardPage(
                                                checkboxGroupInput("varz", "Select Varaibles", choices = list("test", "test2")))),
                                     column(10,
                                            box(width = 12,
-                                               DT::dataTableOutput("tab"))
+                                               dataTableOutput("tab"))
                                            )
                                 )
                             )
