@@ -50,7 +50,8 @@ ui <- dashboardPage(
                                                h4("Choose one variable"),
                                                radioButtons("var", "Select one variable", choices = list("test", "test2"))),
                                            box(width = 12,
-                                               checkboxGroupInput("varz", "Select Varaibles", choices = list("test", "test2")))),
+                                               checkboxGroupInput("varz", "Select Varaibles", choices = list("test", "test2")))
+                                           ),
                                     column(10,
                                            box(width = 12,
                                                dataTableOutput("tab"))
