@@ -7,12 +7,16 @@ output: github_document
 
 * shiny
 * shinydashboard
-* caret
 * tidyverse
+* DT
+* caret  
 
 ```{r}
 library(shiny)
 library(shinydashboard)
+library(tidyverse)
+library(DT)
+library(caret)
 ```
 
 
