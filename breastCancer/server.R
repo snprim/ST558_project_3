@@ -15,7 +15,7 @@ breast1 <- breast %>% select(-X33)
 
 server <- shinyServer(function(input, output, session) { 
     
-    output$tab <- renderDataTable({
+    output$tab <- DT::renderDataTable({
         DT::datatable(breast1, options = list(scrollX = TRUE))
     })
     

@@ -54,7 +54,7 @@ ui <- dashboardPage(
                                            ),
                                     column(10,
                                            box(width = 12,
-                                               dataTableOutput("tab"))
+                                               DT::dataTableOutput("tab"))
                                            )
                                 )
                             )
