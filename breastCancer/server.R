@@ -13,20 +13,24 @@ library(DT)
 breast <- read_csv("../data.csv")
 breast1 <- breast %>% select(-X33)
 colnames(breast1)
+breast1C <- breast1 %>% select(-id, -diagnosis)
 
 server <- shinyServer(function(input, output, session) { 
-    
-    # show full data table if no variables are selected
+    # Visualization page
+    # create histogram
+    output$plotHist <- renderPlot({
+       hist(breast1[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg)
+    })
+    # Data page
+    # show data table--full or subset
     output$tab <- DT::renderDataTable({
         DT::datatable(subset(), options = list(scrollX = TRUE))
     })
-    # output$tab <- DT::renderDataTable({
-    #     if (input$varzSelected){
-    #         DT::datatable(breast2(), options = list(scrollX = TRUE))
-    #     } else {
-    #         DT::datatable(breast1, options = list(scrollX = TRUE))
-    #     }
-    # })
+    # subset table if varzSelected is clicked
+    subset <- reactive({
+        breast2 <- breast1 %>% select(variablez())
+    })
+    # save dataset--full or subset
     subset <- reactive({
         if (input$varzSelected){
             breast2 <- breast1 %>% select(input$varz)
@@ -34,19 +38,22 @@ server <- shinyServer(function(input, output, session) {
             breast2 <- breast1
         }
     })
-    # create a subset if action button "varzSelected" is clicked
-    # breast2 <- eventReactive(input$varzSelected, {
-    #     breast2 <- breast1 %>% select(input$varz)
-    # })
-    # download button for .csv
+    # select all variables if selectAll is clicked
+    observeEvent(input$selectAll, {
+        updateCheckboxGroupInput(session, "varz", selected = colnames(breast1))
+    })
+    # unselect variables if selectNone is clicked
+    observeEvent(input$selectNone, {
+        updateCheckboxGroupInput(session, "varz", selected = NA)
+    })
+    # download csv file
     output$download <- downloadHandler(
         filename = function(){
             "breastCancerSubset.csv"
             },
         content = function(file){
-            write.csv(subset())
-            },
-        contentType = "csv"
+            write.csv(subset(), file, row.names = FALSE)
+            }
     )
-    
+
 })

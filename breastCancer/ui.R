@@ -42,17 +42,43 @@ ui <- dashboardPage(
                                 )
                             ),
                             tabItem(
+                                tabName = "visual",
+                                fluidRow(
+                                  withMathJax(),
+                                  column(3,
+                                         box(width = 12,
+                                             selectInput("histg", "Select Variables for Histogram", choices = colnames(breast1C)))
+                                         ),
+                                  column(9,
+                                         box(width = 12,
+                                             plotOutput("plotHist")
+                                             )
+                                         )
+                                )
+                            ),
+                            tabItem(
+                              tabName = "cluster",
+                              h3("Test2")
+                            ),
+                            tabItem(
+                              tabName = "model",
+                              h3("Test3")
+                            ),
+                            tabItem(
                                 tabName = "dat",
                                 fluidRow(
                                     withMathJax(),
-                                    column(2,
+                                    column(3,
                                            box(width = 12,
                                                actionButton("varzSelected", "Subset Datatable"),
+                                               actionButton("selectAll", "Select All"),
+                                               actionButton("selectNone", "Select None"),
+                                               h6("If you would like to download a subset, select variables, click 'Subset Datatable', and click the 'Download File' button below."),
                                                downloadButton("download", "Download File"),
                                                checkboxGroupInput("varz", "Select Varaibles", choices = colnames(breast1))
                                                )
                                            ),
-                                    column(10,
+                                    column(9,
                                            box(width = 12,
                                                DT::dataTableOutput("tab"))
                                            )
