@@ -7,6 +7,10 @@
 
 library(shiny)
 library(shinydashboard)
+library(tidyverse)
+
+breast <- read_csv("../data.csv")
+breast1C <- breast %>% select(-id, -diagnosis)
 
 ui <- dashboardPage(
                     dashboardHeader(
@@ -79,7 +83,7 @@ ui <- dashboardPage(
                                                actionButton("selectNone", "Select None"),
                                                h6("If you would like to download a subset, select variables, click 'Subset Datatable', and click the 'Download File' button below."),
                                                downloadButton("download", "Download File"),
-                                               checkboxGroupInput("varz", "Select Varaibles", choices = colnames(breast1))
+                                               checkboxGroupInput("varz", "Select Varaibles", choices = colnames(breast))
                                                )
                                            ),
                                     column(9,

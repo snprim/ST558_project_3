@@ -10,25 +10,29 @@ library(shinydashboard)
 library(tidyverse)
 library(DT)
 
-breast <- read_csv("../data.csv")
-breast1 <- breast %>% select(-X33)
-colnames(breast1)
-breast1C <- breast1 %>% select(-id, -diagnosis)
 
 server <- shinyServer(function(input, output, session) { 
+    # set up three datasets: first one full
+    getData <- reactive({
+      breast <- read_csv("../data.csv") %>% select(-X33)
+    })
+    # this one with only continuous variables
+    getData1 <- reactive({
+      breast1C <- getData() %>% select(-id, -diagnosis)
+    })
     # Visualization page
     # create bar plot for diagnosis
     output$bar <- renderPlot({
-        ggplot(breast1, aes(x = diagnosis)) + geom_bar() + ggtitle("Bar Plot of Diagnosis")
+        ggplot(getData(), aes(x = diagnosis)) + geom_bar() + ggtitle("Bar Plot of Diagnosis")
     })
     # create histogram
     output$plotHist <- renderPlot({
-      hist(breast1[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg, breaks = input$breaks)
+      hist(getData()[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg, breaks = input$breaks)
     })
     # summary statistics
     sum <- reactive({
        req(input$histg)
-       x <- breast1C %>% select(input$histg) 
+       x <- getData() %>% select(input$histg) 
     })
     output$sumz <- DT::renderDataTable({
         x <- sum() %>% apply(MARGIN = 2, FUN = summary)
@@ -43,19 +47,19 @@ server <- shinyServer(function(input, output, session) {
     })
     # subset table if varzSelected is clicked
     subset <- reactive({
-        breast2 <- breast1 %>% select(variablez())
+        breast2 <- getData() %>% select(variablez())
     })
     # save dataset--full or subset
     subset <- reactive({
         if (input$varzSelected){
-            breast2 <- breast1 %>% select(input$varz)
+            breast2 <- getData() %>% select(input$varz)
         } else {
-            breast2 <- breast1
+            breast2 <- getData()
         }
     })
     # select all variables if selectAll is clicked
     observeEvent(input$selectAll, {
-        updateCheckboxGroupInput(session, "varz", selected = colnames(breast1))
+        updateCheckboxGroupInput(session, "varz", selected = colnames(getData()))
     })
     # unselect variables if selectNone is clicked
     observeEvent(input$selectNone, {
