@@ -42,15 +42,15 @@ ui <- dashboardPage(
                                 )
                             ),
                             tabItem(
-                                tabName = "visual",
+                                tabName = "dat",
                                 fluidRow(
                                     withMathJax(),
                                     column(2,
                                            box(width = 12,
-                                               h4("Choose one variable"),
-                                               radioButtons("var", "Select one variable", choices = list("test", "test2"))),
-                                           box(width = 12,
-                                               checkboxGroupInput("varz", "Select Varaibles", choices = list("test", "test2")))
+                                               actionButton("varzSelected", "Subset Datatable"),
+                                               downloadButton("download", "Download File"),
+                                               checkboxGroupInput("varz", "Select Varaibles", choices = colnames(breast1))
+                                               )
                                            ),
                                     column(10,
                                            box(width = 12,

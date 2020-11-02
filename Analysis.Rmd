@@ -91,3 +91,9 @@ pred4 <- predict(fit4, newdata = testCross)
 confusionMatrix(testCross$dementia, reference = pred4)
 ```
 
+```{r}
+colnames(breast1)
+varz <- c("id", "texture_mean", "radius_se")
+breast2 <- breast1 %>% select(varz)
+```
+
