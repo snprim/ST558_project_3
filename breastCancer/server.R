@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-10-31
+# Date: 2020-11-1
 #
 
 library(shiny)
@@ -17,10 +17,25 @@ breast1C <- breast1 %>% select(-id, -diagnosis)
 
 server <- shinyServer(function(input, output, session) { 
     # Visualization page
+    # create bar plot for diagnosis
+    output$bar <- renderPlot({
+        ggplot(breast1, aes(x = diagnosis)) + geom_bar() + ggtitle("Bar Plot of Diagnosis")
+    })
     # create histogram
     output$plotHist <- renderPlot({
-       hist(breast1[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg)
+      hist(breast1[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg, breaks = input$breaks)
     })
+    # summary statistics
+    sum <- reactive({
+       req(input$histg)
+       x <- breast1C %>% select(input$histg) 
+    })
+    output$sumz <- DT::renderDataTable({
+        x <- sum() %>% apply(MARGIN = 2, FUN = summary)
+        DT::datatable(x)
+        })
+    # Cluster page
+    # Model page
     # Data page
     # show data table--full or subset
     output$tab <- DT::renderDataTable({

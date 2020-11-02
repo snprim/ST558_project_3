@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-10-31
+# Date: 2020-11-1
 #
 
 library(shiny)
@@ -47,11 +47,15 @@ ui <- dashboardPage(
                                   withMathJax(),
                                   column(3,
                                          box(width = 12,
-                                             selectInput("histg", "Select Variables for Histogram", choices = colnames(breast1C)))
+                                             selectInput("histg", "Select a continuous variable for histogram and summary Statistics", choices = colnames(breast1C)),
+                                             sliderInput("breaks", "Select", value = 50, min = 30, max = 100)
+                                             )
                                          ),
                                   column(9,
                                          box(width = 12,
-                                             plotOutput("plotHist")
+                                             plotOutput("bar"),
+                                             plotOutput("plotHist"),
+                                             DT::dataTableOutput("sumz")
                                              )
                                          )
                                 )

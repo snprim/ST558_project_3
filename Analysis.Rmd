@@ -95,5 +95,7 @@ confusionMatrix(testCross$dementia, reference = pred4)
 colnames(breast1)
 varz <- c("id", "texture_mean", "radius_se")
 breast2 <- breast1 %>% select(varz)
+summary(breast$radius_mean)
+ggplot(breast1, aes(x = radius_mean, ..density..)) + geom_histogram() + geom_density()
 ```
 
