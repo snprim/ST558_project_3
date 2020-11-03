@@ -47,7 +47,14 @@ modelLookup("glm")
 fit1 <- train(diagnosis ~ ., data = trainBreast, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
 summary(fit1)
 pred1 <- predict(fit1, newdata = testBreast)
-confusionMatrix(as.factor(testBreast$diagnosis), reference = pred1)
+mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred1)
+tab <- as.matrix(mat, what = "overall")
+
+modelLookup("knn")
+fitk <- train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=5)), trControl = trainControl(method = "cv", number = 10))
+
+modelLookup("ranfor")
+fitt <- train(diagnosis ~ ., data = trainBreast, method = "rf", tuneGrid = expand.grid(data.frame(mtry=5)), trControl = trainControl(method = "cv", number = 10))
 ```
 
 ```{r, disease prediction}
