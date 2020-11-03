@@ -75,14 +75,15 @@ ui <- dashboardPage(
                                 column(3,
                                        box(width = 12,
                                            radioButtons("modelName", "Select a model", choices = c("logistic regression" = "log", "kNN" = "knn", "random forest" = "ranfor")),
-                                           conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k", min = 2, max = 10, value = 5) ),
+                                           conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k range", min = 2, max = 10, value = c(5,6))),
                                            conditionalPanel(condition = "input.modelName == 'ranfor'", sliderInput("mtry", "Enter mtry", min = 2, max = 10, value = 5) ),
                                            actionButton("runModel", "Run")
                                            )
                                        ),
                                 column(9,
                                        box(width = 12,
-                                           DT::dataTableOutput("modeling")
+                                           DT::dataTableOutput("accuracy"),
+                                           plotOutput("modelPlot")
                                            )
                                        )
                               )

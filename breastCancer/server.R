@@ -40,27 +40,24 @@ server <- shinyServer(function(input, output, session) {
         })
     # Cluster page
     # Model page
-    choice <- eventReactive(input$runModel, {
-      input$modelName
-    })
-    output$modeling <- DT::renderDataTable({
+    model <- eventReactive(input$runModel, {
       data <- getData()
       train <- sample(1:nrow(data), size = nrow(data)*0.8)
       test <- setdiff(1:nrow(data), train)
       trainBreast <- data[train,]
       testBreast <- data[-train,]
       # run models
-      if (choice() == "log"){
+      if (input$modelName == "log"){
         fit <- train(diagnosis ~ ., data = trainBreast, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
         pred <- predict(fit, newdata = testBreast)
         mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
-      } else if (choice() == "knn"){
-        fit <- train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=input$k)), trControl = trainControl(method = "cv", number = 10))
+      } else if (input$modelName == "knn"){
+        fit <-train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=input$k)), trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
         pred <- predict(fit, newdata = testBreast)
         mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
-      } else if (choice() == "ranfor"){
+      } else if (input$modelName == "ranfor"){
         fit <- train(diagnosis ~ ., data = trainBreast, method = "rf", tuneGrid = expand.grid(data.frame(mtry = input$mtry)), trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
         pred <- predict(fit, newdata = testBreast)
@@ -68,7 +65,15 @@ server <- shinyServer(function(input, output, session) {
       }
       tab <- round(as.matrix(mat, what = "overall"), 3)
       colnames(tab) <- c("rate")
-      return(tab)
+      list(tab = tab, fit = fit)
+    })
+    
+    output$accuracy <- DT::renderDataTable({
+      model()$tab
+    })
+    
+    output$modelPlot <- renderPlot({
+      plot(model()$fit$finalModel)
     })
     # Data page
     # show data table--full or subset

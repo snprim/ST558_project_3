@@ -50,11 +50,13 @@ pred1 <- predict(fit1, newdata = testBreast)
 mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred1)
 tab <- as.matrix(mat, what = "overall")
 
-modelLookup("knn")
-fitk <- train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=5)), trControl = trainControl(method = "cv", number = 10))
+modelLookup("gbm")
+fitr <- train(diagnosis ~ ., data = trainBreast, method = "gbm", tuneLength = 5, trControl = trainControl(method = "cv", number = 10), verbose = FALSE)
+plot(fitr$finalModel)
 
 modelLookup("ranfor")
 fitt <- train(diagnosis ~ ., data = trainBreast, method = "rf", tuneGrid = expand.grid(data.frame(mtry=5)), trControl = trainControl(method = "cv", number = 10))
+plot(fitt$finalModel)
 ```
 
 ```{r, disease prediction}
