@@ -9,7 +9,8 @@ output: github_document
 * shinydashboard
 * tidyverse
 * DT
-* caret  
+* caret
+* ggfortify  
 
 ```{r}
 library(shiny)
@@ -17,6 +18,7 @@ library(shinydashboard)
 library(tidyverse)
 library(DT)
 library(caret)
+library(ggfortify)
 ```
 
 

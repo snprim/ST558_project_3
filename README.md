@@ -8,6 +8,7 @@ Shiny App
   - tidyverse
   - DT
   - caret
+  - ggfortify
 
 <!-- end list -->
 
@@ -17,6 +18,7 @@ library(shinydashboard)
 library(tidyverse)
 library(DT)
 library(caret)
+library(ggfortify)
 ```
 
 # Run the Shiny app from your R studio
