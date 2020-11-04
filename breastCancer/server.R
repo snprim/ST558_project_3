@@ -2,13 +2,14 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-1
+# Date: 2020-11-3
 #
 
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
 library(DT)
+library(ggfortify)
 
 
 server <- shinyServer(function(input, output, session) { 
@@ -39,6 +40,20 @@ server <- shinyServer(function(input, output, session) {
         DT::datatable(x)
         })
     # Cluster page
+    pca <- eventReactive(input$runPCA, {
+      req(input$pcaVarz)
+      sub <- getData1() %>% select(input$pcaVarz)
+      PCs <- prcomp(sub, scale = TRUE)
+      plot2 <- autoplot(PCs, data = getData(), colour = "diagnosis", loadings = TRUE, loadings.colour = "blue", loadings.label = TRUE, loadings.label.size = 3)
+      list(sub = sub, PCs = PCs, plot2 = plot2)
+    })
+    output$pca1 <- renderPlot({
+      biplot(pca()$PCs, xlabs = rep(".", nrow(pca()$sub)), cex = 1.2)
+    })
+    output$pca2 <- renderPlot({
+      pca()$plot2
+    })
+    
     # Model page
     model <- eventReactive(input$runModel, {
       data <- getData()

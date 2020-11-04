@@ -2,14 +2,15 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-1
+# Date: 2020-11-3
 #
 
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
 
-breast <- read_csv("../data.csv")
+
+breast <- read_csv("../data.csv") %>% select(-X33)
 breast1C <- breast %>% select(-id, -diagnosis)
 
 ui <- dashboardPage(
@@ -66,7 +67,21 @@ ui <- dashboardPage(
                             ),
                             tabItem(
                               tabName = "cluster",
-                              h3("Test2")
+                              withMathJax(),
+                              fluidRow(
+                                column(3,
+                                       box(width = 12,
+                                           checkboxGroupInput("pcaVarz", "Select Varaibles for PCA analaysis", choices = colnames(breast1C)),
+                                           actionButton("runPCA", "Run PCA now")
+                                           )
+                                       ),
+                                column(9,
+                                       box(width = 12, 
+                                       plotOutput("pca1"),
+                                       plotOutput("pca2")
+                                           )
+                                       )
+                              )
                             ),
                             tabItem(
                               tabName = "model",
