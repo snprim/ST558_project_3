@@ -38,6 +38,9 @@ plot(fitr$finalModel)
 
 fitt <- train(diagnosis ~ ., data = trainBreast, method = "rf", tuneGrid = expand.grid(data.frame(mtry=5)), trControl = trainControl(method = "cv", number = 10))
 plot(fitt$finalModel)
+
+fitk <- train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=5:8)), trControl = trainControl(method = "cv", number = 10))
+plot(fitk)
 ```
 
 ```{r, clustering}
@@ -62,5 +65,9 @@ varz <- c("id", "texture_mean", "radius_se")
 breast2 <- breast1 %>% select(varz)
 summary(breast$radius_mean)
 ggplot(breast1, aes(x = radius_mean, ..density..)) + geom_histogram() + geom_density()
+```
+
+```{r}
+
 ```
 

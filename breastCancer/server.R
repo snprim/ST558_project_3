@@ -10,6 +10,7 @@ library(shinydashboard)
 library(tidyverse)
 library(DT)
 library(ggfortify)
+library(caret)
 
 
 server <- shinyServer(function(input, output, session) { 
@@ -30,6 +31,11 @@ server <- shinyServer(function(input, output, session) {
     output$plotHist <- renderPlot({
       hist(getData()[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg, breaks = input$breaks)
     })
+    # summary statistic for response 
+    output$diagSum <- DT::renderDataTable({
+      x <- getData() %>% select(diagnosis) %>% apply(MARGIN = 2, FUN = summary)
+      DT::datatable(x)
+    })
     # summary statistics
     sum <- reactive({
        req(input$histg)
@@ -44,12 +50,12 @@ server <- shinyServer(function(input, output, session) {
       req(input$pcaVarz)
       sub <- getData1() %>% select(input$pcaVarz)
       PCs <- prcomp(sub, scale = TRUE)
-      plot2 <- autoplot(PCs, data = getData(), colour = "diagnosis", loadings = TRUE, loadings.colour = "blue", loadings.label = TRUE, loadings.label.size = 3)
+      plot2 <- autoplot(PCs, data = getData(), colour = "diagnosis", loadings = TRUE, loadings.colour = "blue", loadings.label = TRUE, loadings.label.size = 4)
       list(sub = sub, PCs = PCs, plot2 = plot2)
     })
-    output$pca1 <- renderPlot({
-      biplot(pca()$PCs, xlabs = rep(".", nrow(pca()$sub)), cex = 1.2)
-    })
+    # output$pca1 <- renderPlot({
+    #   biplot(pca()$PCs, xlabs = rep(".", nrow(pca()$sub)), cex = 1.2)
+    # })
     output$pca2 <- renderPlot({
       pca()$plot2
     })
@@ -65,19 +71,15 @@ server <- shinyServer(function(input, output, session) {
       if (input$modelName == "log"){
         fit <- train(diagnosis ~ ., data = trainBreast, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
-        pred <- predict(fit, newdata = testBreast)
-        mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
       } else if (input$modelName == "knn"){
         fit <-train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=input$k)), trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
-        pred <- predict(fit, newdata = testBreast)
-        mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
       } else if (input$modelName == "ranfor"){
         fit <- train(diagnosis ~ ., data = trainBreast, method = "rf", tuneGrid = expand.grid(data.frame(mtry = input$mtry)), trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
-        pred <- predict(fit, newdata = testBreast)
-        mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
       }
+      pred <- predict(fit, newdata = testBreast)
+      mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
       tab <- round(as.matrix(mat, what = "overall"), 3)
       colnames(tab) <- c("rate")
       list(tab = tab, fit = fit)
@@ -87,33 +89,40 @@ server <- shinyServer(function(input, output, session) {
       model()$tab
     })
     
-    output$modelPlot <- renderPlot({
-      plot(model()$fit$finalModel)
+    plotz <- eventReactive(input$runModel, {
+      if (input$modelName == "knn"){
+        plot(model()$fit)
+      } else {
+        plot(model()$fit$finalModel)
+      }
     })
+    
+    output$modelPlot <- renderPlot({
+      plotz()
+    })
+    
     # Data page
     # show data table--full or subset
     output$tab <- DT::renderDataTable({
-        DT::datatable(subset(), options = list(scrollX = TRUE))
+        input$varzSelected
+        subset <- getData() %>% select(isolate(input$varz))
+        DT::datatable(subset, options = list(scrollX = TRUE))
     })
-    # subset table if varzSelected is clicked
-    subset <- reactive({
-        breast2 <- getData() %>% select(variablez())
-    })
-    # save dataset--full or subset
-    subset <- reactive({
-        if (input$varzSelected){
-            breast2 <- getData() %>% select(input$varz)
-        } else {
-            breast2 <- getData()
-        }
-    })
+    # # save dataset--full or subset
+    # subset <- reactive({
+    #     if (input$varzSelected){
+    #         breast2 <- getData() %>% select(input$varz)
+    #     } else {
+    #         breast2 <- getData()
+    #     }
+    # })
     # select all variables if selectAll is clicked
     observeEvent(input$selectAll, {
         updateCheckboxGroupInput(session, "varz", selected = colnames(getData()))
     })
     # unselect variables if selectNone is clicked
     observeEvent(input$selectNone, {
-        updateCheckboxGroupInput(session, "varz", selected = NA)
+        updateCheckboxGroupInput(session, "varz", selected = "")
     })
     # download csv file
     output$download <- downloadHandler(

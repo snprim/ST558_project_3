@@ -23,10 +23,10 @@ ui <- dashboardPage(
                     dashboardSidebar(
                         sidebarMenu(
                             menuItem("About", tabName = "about"),
-                            menuItem("Visualization", tabName = "visual"),
-                            menuItem("Clustering/PCA", tabName = "cluster"),
+                            menuItem("Data Summaries", tabName = "visual"),
+                            menuItem("Principal Component Analysis (PCA)", tabName = "cluster"),
                             menuItem("Modeling", tabName = "model"),
-                            menuItem("Data", tabName = "dat")
+                            menuItem("Subset and Save Data", tabName = "dat")
                         )
                     ),
                     
@@ -38,7 +38,7 @@ ui <- dashboardPage(
                                 fluidRow(
                                     withMathJax(),
                                     column(6, 
-                                           h3("About this datasetg"),
+                                           h3("About this dataset"),
                                            h4("This dataset can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic")))),
                                     column(6, 
                                            h3("How to use this app"),
@@ -49,7 +49,6 @@ ui <- dashboardPage(
                             tabItem(
                                 tabName = "visual",
                                 fluidRow(
-                                  withMathJax(),
                                   column(3,
                                          box(width = 12,
                                              selectInput("histg", "Select a continuous variable for histogram and summary Statistics", choices = colnames(breast1C)),
@@ -57,8 +56,11 @@ ui <- dashboardPage(
                                              )
                                          ),
                                   column(9,
+                                         box(width = 6,
+                                             plotOutput("bar")),
+                                         box(width = 6,
+                                             DT::dataTableOutput("diagSum")),
                                          box(width = 12,
-                                             plotOutput("bar"),
                                              plotOutput("plotHist"),
                                              DT::dataTableOutput("sumz")
                                              )
@@ -67,17 +69,15 @@ ui <- dashboardPage(
                             ),
                             tabItem(
                               tabName = "cluster",
-                              withMathJax(),
                               fluidRow(
                                 column(3,
                                        box(width = 12,
-                                           checkboxGroupInput("pcaVarz", "Select Varaibles for PCA analaysis", choices = colnames(breast1C)),
+                                           checkboxGroupInput("pcaVarz", "Select Variables and click 'Run PCA'", choices = colnames(breast1C)),
                                            actionButton("runPCA", "Run PCA now")
                                            )
                                        ),
                                 column(9,
                                        box(width = 12, 
-                                       plotOutput("pca1"),
                                        plotOutput("pca2")
                                            )
                                        )
@@ -109,15 +109,16 @@ ui <- dashboardPage(
                                     withMathJax(),
                                     column(3,
                                            box(width = 12,
-                                               actionButton("varzSelected", "Subset Datatable"),
+                                               h4("To download the dataset, select variables, click 'View Datatable', and then 'Download File'."),
+                                               actionButton("varzSelected", "View Datatable"),
                                                actionButton("selectAll", "Select All"),
                                                actionButton("selectNone", "Select None"),
-                                               h6("If you would like to download a subset, select variables, click 'Subset Datatable', and click the 'Download File' button below."),
                                                downloadButton("download", "Download File"),
-                                               checkboxGroupInput("varz", "Select Varaibles", choices = colnames(breast))
+                                               checkboxGroupInput("varz", "Select Variables", choices = colnames(breast))
                                                )
                                            ),
                                     column(9,
+                                           h4("Please select variables below and then click 'View Datatable'"),
                                            box(width = 12,
                                                DT::dataTableOutput("tab"))
                                            )
