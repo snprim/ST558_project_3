@@ -71,6 +71,7 @@ server <- shinyServer(function(input, output, session) {
     
     # Model page
     model <- eventReactive(input$runModel, {
+      req(input$modelVarz)
       data <- getData() %>% select(input$modelVarz, diagnosis)
       train <- sample(1:nrow(data), size = nrow(data)*0.8)
       test <- setdiff(1:nrow(data), train)
