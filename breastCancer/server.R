@@ -62,7 +62,7 @@ server <- shinyServer(function(input, output, session) {
     
     # Model page
     model <- eventReactive(input$runModel, {
-      data <- getData()
+      data <- getData() %>% select(input$modelVarz, diagnosis)
       train <- sample(1:nrow(data), size = nrow(data)*0.8)
       test <- setdiff(1:nrow(data), train)
       trainBreast <- data[train,]
@@ -83,6 +83,22 @@ server <- shinyServer(function(input, output, session) {
       tab <- round(as.matrix(mat, what = "overall"), 3)
       colnames(tab) <- c("rate")
       list(tab = tab, fit = fit)
+    })
+    
+    output$selections <- renderTable({
+      paste(input$modelVarz, collapse = ",")
+    })
+    
+    observeEvent(input$selectAll, {
+        updateSelectInput(session, "modelVarz", selected = colnames(getData1()))
+    })
+    
+    observeEvent(input$clearAll, {
+      updateSelectInput(session, "modelVarz", selected = NA)
+    })
+    
+    output$predictors <- renderText({
+      model()$fit$coefnames
     })
     
     output$accuracy <- DT::renderDataTable({

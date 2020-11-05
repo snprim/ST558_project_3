@@ -36,7 +36,6 @@ ui <- dashboardPage(
                             tabItem(
                                 tabName = "about",
                                 fluidRow(
-                                    withMathJax(),
                                     column(6, 
                                            h3("About this dataset"),
                                            h4("This dataset can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic")))),
@@ -59,7 +58,9 @@ ui <- dashboardPage(
                                          box(width = 6,
                                              plotOutput("bar")),
                                          box(width = 6,
-                                             DT::dataTableOutput("diagSum")),
+                                             DT::dataTableOutput("diagSum"),
+                                             # equation
+                                             withMathJax("$$\\beta^2$$")),
                                          box(width = 12,
                                              plotOutput("plotHist"),
                                              DT::dataTableOutput("sumz")
@@ -86,17 +87,22 @@ ui <- dashboardPage(
                             tabItem(
                               tabName = "model",
                               fluidRow(
-                                withMathJax(),
                                 column(3,
                                        box(width = 12,
                                            radioButtons("modelName", "Select a model", choices = c("logistic regression" = "log", "kNN" = "knn", "random forest" = "ranfor")),
                                            conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k range", min = 2, max = 10, value = c(5,6))),
                                            conditionalPanel(condition = "input.modelName == 'ranfor'", sliderInput("mtry", "Enter mtry", min = 2, max = 10, value = 5) ),
-                                           actionButton("runModel", "Run")
+                                           actionButton("runModel", "Run"),
+                                           selectInput("modelVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
+                                           actionButton("selectAll", "Select All"),
+                                           actionButton("clearAll", "Clear All")
                                            )
                                        ),
                                 column(9,
                                        box(width = 12,
+                                           h4("The variables in your model are: "),
+                                           textOutput("predictors"),
+                                           br(),
                                            DT::dataTableOutput("accuracy"),
                                            plotOutput("modelPlot")
                                            )
@@ -106,15 +112,13 @@ ui <- dashboardPage(
                             tabItem(
                                 tabName = "dat",
                                 fluidRow(
-                                    withMathJax(),
                                     column(3,
                                            box(width = 12,
-                                               h4("To download the dataset, select variables, click 'View Datatable', and then 'Download File'."),
                                                actionButton("varzSelected", "View Datatable"),
                                                actionButton("selectAll", "Select All"),
                                                actionButton("selectNone", "Select None"),
                                                downloadButton("download", "Download File"),
-                                               checkboxGroupInput("varz", "Select Variables", choices = colnames(breast))
+                                               checkboxGroupInput("varz", "To download the dataset, select variables, click 'View Datatable', and then 'Download File'.", choices = colnames(breast))
                                                )
                                            ),
                                     column(9,

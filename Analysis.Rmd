@@ -31,6 +31,7 @@ summary(fit1)
 pred1 <- predict(fit1, newdata = testBreast)
 mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred1)
 tab <- as.matrix(mat, what = "overall")
+fit1$coefnames
 
 modelLookup("gbm")
 fitr <- train(diagnosis ~ ., data = trainBreast, method = "gbm", tuneLength = 5, trControl = trainControl(method = "cv", number = 10), verbose = FALSE)
