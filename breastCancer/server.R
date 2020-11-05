@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-3
+# Date: 2020-11-5
 #
 
 library(shiny)
@@ -11,6 +11,7 @@ library(tidyverse)
 library(DT)
 library(ggfortify)
 library(caret)
+library(plotly)
 
 
 server <- shinyServer(function(input, output, session) { 
@@ -46,12 +47,20 @@ server <- shinyServer(function(input, output, session) {
         DT::datatable(x)
         })
     # Cluster page
-    pca <- eventReactive(input$runPCA, {
-      req(input$pcaVarz)
-      sub <- getData1() %>% select(input$pcaVarz)
+    pca <- eventReactive(input$PCAVarzSelected, {
+      req(input$PCAVarz)
+      sub <- getData1() %>% select(input$PCAVarz)
       PCs <- prcomp(sub, scale = TRUE)
       plot2 <- autoplot(PCs, data = getData(), colour = "diagnosis", loadings = TRUE, loadings.colour = "blue", loadings.label = TRUE, loadings.label.size = 4)
       list(sub = sub, PCs = PCs, plot2 = plot2)
+    })
+    # select all variables if selectAll is clicked
+    observeEvent(input$selectAllP, {
+      updateSelectInput(session, "PCAVarz", selected = colnames(getData1()))
+    })
+    
+    observeEvent(input$clearAllP, {
+      updateSelectInput(session, "PCAVarz", selected = NA)
     })
     # output$pca1 <- renderPlot({
     #   biplot(pca()$PCs, xlabs = rep(".", nrow(pca()$sub)), cex = 1.2)
@@ -89,11 +98,11 @@ server <- shinyServer(function(input, output, session) {
       paste(input$modelVarz, collapse = ",")
     })
     
-    observeEvent(input$selectAll, {
+    observeEvent(input$selectAllM, {
         updateSelectInput(session, "modelVarz", selected = colnames(getData1()))
     })
     
-    observeEvent(input$clearAll, {
+    observeEvent(input$clearAllM, {
       updateSelectInput(session, "modelVarz", selected = NA)
     })
     
@@ -120,25 +129,17 @@ server <- shinyServer(function(input, output, session) {
     # Data page
     # show data table--full or subset
     output$tab <- DT::renderDataTable({
-        input$varzSelected
-        subset <- getData() %>% select(isolate(input$varz))
+        input$datVarzSelected
+        subset <- getData() %>% select(isolate(input$datVarz))
         DT::datatable(subset, options = list(scrollX = TRUE))
     })
-    # # save dataset--full or subset
-    # subset <- reactive({
-    #     if (input$varzSelected){
-    #         breast2 <- getData() %>% select(input$varz)
-    #     } else {
-    #         breast2 <- getData()
-    #     }
-    # })
     # select all variables if selectAll is clicked
-    observeEvent(input$selectAll, {
-        updateCheckboxGroupInput(session, "varz", selected = colnames(getData()))
+    observeEvent(input$selectAllD, {
+      updateSelectInput(session, "datVarz", selected = colnames(getData1()))
     })
-    # unselect variables if selectNone is clicked
-    observeEvent(input$selectNone, {
-        updateCheckboxGroupInput(session, "varz", selected = "")
+    
+    observeEvent(input$clearAllD, {
+      updateSelectInput(session, "datVarz", selected = NA)
     })
     # download csv file
     output$download <- downloadHandler(

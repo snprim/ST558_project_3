@@ -2,12 +2,13 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-3
+# Date: 2020-11-5
 #
 
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
+library(plotly)
 
 
 breast <- read_csv("../data.csv") %>% select(-X33)
@@ -73,8 +74,14 @@ ui <- dashboardPage(
                               fluidRow(
                                 column(3,
                                        box(width = 12,
-                                           checkboxGroupInput("pcaVarz", "Select Variables and click 'Run PCA'", choices = colnames(breast1C)),
-                                           actionButton("runPCA", "Run PCA now")
+                                           selectInput("PCAVarz", "Select Variables and click 'Run PCA'", choices = colnames(breast1C), multiple = TRUE),
+                                           actionButton("PCAVarzSelected", "Run PCA now"),
+                                           actionButton("selectAllP", "Select All"),
+                                           actionButton("clearAllP", "Clear All")
+                                           
+                                           
+                                           # checkboxGroupInput("pcaVarz", "Select Variables and click 'Run PCA'", choices = colnames(breast1C)),
+                                           # actionButton("runPCA", "Run PCA now")
                                            )
                                        ),
                                 column(9,
@@ -92,10 +99,10 @@ ui <- dashboardPage(
                                            radioButtons("modelName", "Select a model", choices = c("logistic regression" = "log", "kNN" = "knn", "random forest" = "ranfor")),
                                            conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k range", min = 2, max = 10, value = c(5,6))),
                                            conditionalPanel(condition = "input.modelName == 'ranfor'", sliderInput("mtry", "Enter mtry", min = 2, max = 10, value = 5) ),
-                                           actionButton("runModel", "Run"),
                                            selectInput("modelVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
-                                           actionButton("selectAll", "Select All"),
-                                           actionButton("clearAll", "Clear All")
+                                           actionButton("runModel", "Run"),
+                                           actionButton("selectAllM", "Select All"),
+                                           actionButton("clearAllM", "Clear All")
                                            )
                                        ),
                                 column(9,
@@ -114,11 +121,12 @@ ui <- dashboardPage(
                                 fluidRow(
                                     column(3,
                                            box(width = 12,
-                                               actionButton("varzSelected", "View Datatable"),
-                                               actionButton("selectAll", "Select All"),
-                                               actionButton("selectNone", "Select None"),
-                                               downloadButton("download", "Download File"),
-                                               checkboxGroupInput("varz", "To download the dataset, select variables, click 'View Datatable', and then 'Download File'.", choices = colnames(breast))
+                                               selectInput("datVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
+                                               actionButton("datVarzSelected", "View Datatable"),
+                                               actionButton("selectAllD", "Select All"),
+                                               actionButton("clearAllD", "Clear All"),
+                                               downloadButton("download", "Download File")
+                                               # checkboxGroupInput("varz", "To download the dataset, select variables, click 'View Datatable', and then 'Download File'.", choices = colnames(breast))
                                                )
                                            ),
                                     column(9,
