@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-5
+# Date: 2020-11-6
 #
 
 library(shiny)
@@ -97,12 +97,14 @@ ui <- dashboardPage(
                                 column(3,
                                        box(width = 12,
                                            radioButtons("modelName", "Select a model", choices = c("logistic regression" = "log", "kNN" = "knn", "random forest" = "ranfor")),
+                                           radioButtons("outputType", "What type of text output would you like to see?", choices = c("Confusion matrix" = "conMat", "Accuracy statistics" = "acc", "Both" = "both")),
                                            conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k range", min = 2, max = 10, value = c(5,6))),
                                            conditionalPanel(condition = "input.modelName == 'ranfor'", sliderInput("mtry", "Enter mtry", min = 2, max = 10, value = 5) ),
                                            selectInput("modelVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
                                            actionButton("runModel", "Run"),
                                            actionButton("selectAllM", "Select All"),
-                                           actionButton("clearAllM", "Clear All")
+                                           actionButton("clearAllM", "Clear All"),
+                                           downloadButton("downloadP", "Download Plot")
                                            )
                                        ),
                                 column(9,
@@ -110,7 +112,8 @@ ui <- dashboardPage(
                                            h4("The variables in your model are: "),
                                            textOutput("predictors"),
                                            br(),
-                                           DT::dataTableOutput("accuracy"),
+                                           conditionalPanel(condition = "input.outputType == 'conMat' || input.outputType == 'both'", tableOutput("confusion")),
+                                           conditionalPanel(condition = "input.outputType == 'acc' || input.outputType == 'both'", DT::dataTableOutput("accuracy")),
                                            plotOutput("modelPlot")
                                            )
                                        )

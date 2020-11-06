@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-5
+# Date: 2020-11-6
 #
 
 library(shiny)
@@ -92,12 +92,12 @@ server <- shinyServer(function(input, output, session) {
       mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred)
       tab <- round(as.matrix(mat, what = "overall"), 3)
       colnames(tab) <- c("rate")
-      list(tab = tab, fit = fit)
+      list(mat = mat, tab = tab, fit = fit)
     })
     
-    output$selections <- renderTable({
-      paste(input$modelVarz, collapse = ",")
-    })
+    # output$selections <- renderTable({
+    #   paste(input$modelVarz, collapse = ",")
+    # })
     
     observeEvent(input$selectAllM, {
         updateSelectInput(session, "modelVarz", selected = colnames(getData1()))
@@ -122,17 +122,42 @@ server <- shinyServer(function(input, output, session) {
         plot(model()$fit$finalModel)
       }
     })
-    
+    # model plot
     output$modelPlot <- renderPlot({
       plotz()
     })
-    
+    # confusion matrix
+    output$confusion <- renderTable({
+      model()$mat$table
+    })
+    # download model plot
+    savePlot <- function(){
+      if (input$modelName == "knn"){
+        plot(model()$fit)
+      } else {
+        plot(model()$fit$finalModel)
+      }
+    }
+    output$downloadP <- downloadHandler(
+      filename = function(){
+        "modeling.png"
+      },
+      content = function(file){
+        device <- function(..., width, height){
+          grDevices::png(..., width = width, height = height, res = 300, units = "in")
+        }
+        ggsave(file, plot = savePlot(), device = device)
+      }
+    )
     # Data page
-    # show data table--full or subset
+    # show data table
+    subset <- eventReactive(input$datVarzSelected, {
+      req(input$datVarz)
+      subset <- getData() %>% select(isolate(input$datVarz))
+    })
     output$tab <- DT::renderDataTable({
         input$datVarzSelected
-        subset <- getData() %>% select(isolate(input$datVarz))
-        DT::datatable(subset, options = list(scrollX = TRUE))
+        DT::datatable(subset(), options = list(scrollX = TRUE))
     })
     # select all variables if selectAll is clicked
     observeEvent(input$selectAllD, {

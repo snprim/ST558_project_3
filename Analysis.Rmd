@@ -14,7 +14,6 @@ library(ggfortify)
 
 * interactive plots
 * allow users to put in values for prediction
-* allow users to choose output for modeling
 
 # Read in data  
 
@@ -31,10 +30,12 @@ testBreast <- breast1[-train1,]
 
 modelLookup("glm")
 fit1 <- train(diagnosis ~ ., data = trainBreast, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
-summary(fit1)
+summary <- summary(fit1)
 pred1 <- predict(fit1, newdata = testBreast)
 mat <- confusionMatrix(as.factor(testBreast$diagnosis), reference = pred1)
+mat$table
 tab <- as.matrix(mat, what = "overall")
+tab
 fit1$coefnames
 
 modelLookup("gbm")
