@@ -9,16 +9,12 @@ Shiny App
   - DT
   - caret
   - ggfortify
+  - plotly
 
 <!-- end list -->
 
 ``` r
-library(shiny)
-library(shinydashboard)
-library(tidyverse)
-library(DT)
-library(caret)
-library(ggfortify)
+install.packages(c("shiny", "shinydashboard", "tidyverse", "DT", "caret", "ggfortify", "plotly"))
 ```
 
 # Run the Shiny app from your R studio

@@ -10,15 +10,11 @@ output: github_document
 * tidyverse
 * DT
 * caret
-* ggfortify  
+* ggfortify
+* plotly
 
-```{r}
-library(shiny)
-library(shinydashboard)
-library(tidyverse)
-library(DT)
-library(caret)
-library(ggfortify)
+```{r, echo = TRUE, eval = FALSE}
+install.packages(c("shiny", "shinydashboard", "tidyverse", "DT", "caret", "ggfortify", "plotly"))
 ```
 
 
