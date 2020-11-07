@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-6
+# Date: 2020-11-7
 #
 
 library(shiny)
@@ -31,6 +31,15 @@ server <- shinyServer(function(input, output, session) {
     # create histogram
     output$plotHist <- renderPlot({
       hist(getData()[[input$histg]], main = paste0("Histogram of ", input$histg), xlab = input$histg, breaks = input$breaks)
+    })
+    # create scatterplot
+    scat <- eventReactive(input$plotScatter, {
+      req(input$scatter)
+      data <- getData() %>% select(input$scatter)
+      plot_ly(data, x = ~ data[[1]], y = ~ data[[2]]) %>% layout(xaxis = list(title = colnames(data[,1])), yaxis = list(title = colnames(data[,2])))
+    })
+    output$scatterP <- renderPlotly({
+      scat()
     })
     # summary statistic for response 
     output$diagSum <- DT::renderDataTable({

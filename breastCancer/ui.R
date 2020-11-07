@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-6
+# Date: 2020-11-7
 #
 
 library(shiny)
@@ -52,7 +52,9 @@ ui <- dashboardPage(
                                   column(3,
                                          box(width = 12,
                                              selectInput("histg", "Select a continuous variable for histogram and summary Statistics", choices = colnames(breast1C)),
-                                             sliderInput("breaks", "Select", value = 50, min = 30, max = 100)
+                                             sliderInput("breaks", "Select number of breaks for the histogram", value = 50, min = 30, max = 100),
+                                             selectizeInput("scatter", "Select two variables to plot a scatterplot", choices = colnames(breast1C), selected = NULL, multiple = TRUE, options = list(maxItems = 2, placeholder = 'select 2 variables')),
+                                             actionButton("plotScatter", "Create Scatterplot")
                                              )
                                          ),
                                   column(9,
@@ -64,8 +66,9 @@ ui <- dashboardPage(
                                              withMathJax("$$\\beta^2$$")),
                                          box(width = 12,
                                              plotOutput("plotHist"),
-                                             DT::dataTableOutput("sumz")
-                                             )
+                                             DT::dataTableOutput("sumz")),
+                                         box(width = 12,
+                                             plotlyOutput("scatterP"))
                                          )
                                 )
                             ),
