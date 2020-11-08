@@ -69,8 +69,6 @@ ui <- dashboardPage(
                                              plotOutput("bar")),
                                          box(width = 6,
                                              DT::dataTableOutput("diagSum"),
-                                             # equation
-                                             withMathJax("$$\\beta^2$$")),
                                          box(width = 12,
                                              plotOutput("plotHist"),
                                              DT::dataTableOutput("sumz")),
@@ -78,7 +76,7 @@ ui <- dashboardPage(
                                              plotlyOutput("scatterP"))
                                          )
                                 )
-                            ),
+                            )),
                             tabItem(
                               tabName = "cluster",
                               fluidRow(
@@ -103,10 +101,12 @@ ui <- dashboardPage(
                                 column(3,
                                        box(width = 12,
                                            radioButtons("modelName", "Select a model", choices = c("logistic regression" = "log", "kNN" = "knn", "random forest" = "ranfor")),
+                                           conditionalPanel(condition = "input.modelName == 'log'", h6("Logistic regression is suitable for binary responses. The basic logistic regression model:", withMathJax("$$P(success)=\\dfrac{e^{\\beta_0+\\beta_1x}}{1+e^{\\beta_0+\\beta_1x}}$$"))),
+                                           conditionalPanel(condition = "input.modelName == 'knn'", h6("K Nearest Neighbor uses the closest k observations in terms of distance (usually Euclidean) to make prediction.")),
+                                           conditionalPanel(condition = "input.modelName == 'ranfor'", h6("The random forest model random chooses a subset of (m) predictors from the p variables for the model. A convention is to choose", withMathJax("$$m=\\sqrt{p}$$"), "for classification.")),
                                            radioButtons("outputType", "What type of text output would you like to see?", choices = c("Confusion matrix" = "conMat", "Accuracy statistics" = "acc", "Both" = "both")),
                                            conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k range", min = 2, max = 10, value = c(5,6))),
                                            conditionalPanel(condition = "input.modelName == 'ranfor'", sliderInput("mtry", "Enter mtry", min = 2, max = 10, value = 5) ),
-                                           #selectInput("modelVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
                                            selectInput("modelVarz", "Choose variables for the model", multiple = TRUE, choices = c("radius_mean" = "radius_mean",
                            "texture_mean" = "texture_mean",
                            "perimeter_mean" = "perimeter_mean",

@@ -13,7 +13,6 @@ library(ggfortify)
 library(plotly)
 ```
 
-* How to leave full data table in the beginning for data?
 * add math symbols
 
 # Read in data  

@@ -15,7 +15,6 @@ library(plotly)
 
 
 server <- shinyServer(function(input, output, session) { 
-    vals <- reactiveValues()
     # set up three datasets: first one full
     getData <- reactive({
       breast <- read_csv("../data.csv") %>% select(-X33) %>% rename(concave_points_mean = `concave points_mean`, concave_points_se = `concave points_se`, concave_points_worst = `concave points_worst`)
@@ -24,6 +23,8 @@ server <- shinyServer(function(input, output, session) {
     getData1 <- reactive({
       breast1C <- getData() %>% select(-id, -diagnosis) 
     })
+    vals <- reactiveValues()
+    observe(vals$data <- getData())
     # Visualization page
     # create bar plot for diagnosis
     output$bar <- renderPlot({
@@ -127,9 +128,9 @@ server <- shinyServer(function(input, output, session) {
     
     plotz <- eventReactive(input$runModel, {
       if (input$modelName == "knn"){
-        plot <- plot(model()$fit)
+        plot <- plot(model()$fit, main = "")
       } else if (input$modelName == "log" || input$modelName == "ranfor") {
-        plot <- plot(model()$fit$finalModel)
+        plot <- plot(model()$fit$finalModel, main = "")
       }
       vals$plot <- plot
       print(plot)
@@ -152,7 +153,7 @@ server <- shinyServer(function(input, output, session) {
         if (input$modelName == "knn"){
           print(vals$plot)
         } else {
-          plot(model()$fit$finalModel)
+          plot(model()$fit$finalModel, main = "")
         }
         dev.off()
       }
@@ -206,14 +207,22 @@ server <- shinyServer(function(input, output, session) {
     })
     # Data page
     # show data table
-    subset <- eventReactive(input$datVarzSelected, {
+    
+    observeEvent(input$datVarzSelected, {
       req(input$datVarz)
-      subset <- getData() %>% select(isolate(input$datVarz))
+      vals$data <- getData() %>% select(isolate(input$datVarz))
     })
     output$tab <- DT::renderDataTable({
-        input$datVarzSelected
-        DT::datatable(subset(), options = list(scrollX = TRUE))
+      DT::datatable(vals$data, options = list(scrollX = TRUE))
     })
+    # subset <- eventReactive(input$datVarzSelected, {
+    #   req(input$datVarz)
+    #   subset <- getData() %>% select(isolate(input$datVarz))
+    # })
+    # output$tab <- DT::renderDataTable({
+    #     input$datVarzSelected
+    #     DT::datatable(subset(), options = list(scrollX = TRUE))
+    # })
     # select all variables if selectAll is clicked
     observeEvent(input$selectAllD, {
       updateSelectInput(session, "datVarz", selected = colnames(getData1()))
@@ -228,8 +237,7 @@ server <- shinyServer(function(input, output, session) {
             "breastCancerSubset.csv"
             },
         content = function(file){
-            write.csv(subset(), file, row.names = FALSE)
+            write.csv(vals$data, file, row.names = FALSE)
             }
     )
-
 })
