@@ -68,14 +68,14 @@ ui <- dashboardPage(
                                          box(width = 6,
                                              plotOutput("bar")),
                                          box(width = 6,
-                                             DT::dataTableOutput("diagSum"),
+                                             DT::dataTableOutput("diagSum")),
                                          box(width = 12,
                                              plotOutput("plotHist"),
                                              DT::dataTableOutput("sumz")),
                                          box(width = 12,
                                              plotlyOutput("scatterP"))
                                          )
-                                )
+                                
                             )),
                             tabItem(
                               tabName = "cluster",
