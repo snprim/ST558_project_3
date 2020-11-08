@@ -1,7 +1,7 @@
 ---
 title: "Analysis"
 author: "Shih-Ni Prim"
-date: "2020-11-5"
+date: "2020-11-8"
 output: pdf_document
 ---
 
@@ -13,9 +13,8 @@ library(ggfortify)
 library(plotly)
 ```
 
-* allow users to put in values for prediction
 * How to leave full data table in the beginning for data?
-* work on the about page
+* add math symbols
 
 # Read in data  
 
@@ -40,7 +39,6 @@ mat$table
 tab <- as.matrix(mat, what = "overall")
 tab
 fit1$coefnames
-
 modelLookup("gbm")
 fitr <- train(diagnosis ~ ., data = trainBreast, method = "gbm", tuneLength = 5, trControl = trainControl(method = "cv", number = 10), verbose = FALSE)
 plot(fitr$finalModel)

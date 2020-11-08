@@ -15,6 +15,7 @@ library(plotly)
 
 
 server <- shinyServer(function(input, output, session) { 
+    vals <- reactiveValues()
     # set up three datasets: first one full
     getData <- reactive({
       breast <- read_csv("../data.csv") %>% select(-X33) %>% rename(concave_points_mean = `concave points_mean`, concave_points_se = `concave points_se`, concave_points_worst = `concave points_worst`)
@@ -91,7 +92,7 @@ server <- shinyServer(function(input, output, session) {
         fit <- train(diagnosis ~ ., data = trainBreast, method = "glm", family = "binomial", trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
       } else if (input$modelName == "knn"){
-        fit <-train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=input$k)), trControl = trainControl(method = "cv", number = 10))
+        fit <-train(diagnosis ~ ., data = trainBreast, method = "knn", tuneGrid = expand.grid(data.frame(k=input$k[1]:input$k[2])), trControl = trainControl(method = "cv", number = 10))
         # summary(fit)
       } else if (input$modelName == "ranfor"){
         fit <- train(diagnosis ~ ., data = trainBreast, method = "rf", tuneGrid = expand.grid(data.frame(mtry = input$mtry)), trControl = trainControl(method = "cv", number = 10))
@@ -126,10 +127,12 @@ server <- shinyServer(function(input, output, session) {
     
     plotz <- eventReactive(input$runModel, {
       if (input$modelName == "knn"){
-        plot(model()$fit)
-      } else {
-        plot(model()$fit$finalModel)
+        plot <- plot(model()$fit)
+      } else if (input$modelName == "log" || input$modelName == "ranfor") {
+        plot <- plot(model()$fit$finalModel)
       }
+      vals$plot <- plot
+      print(plot)
     })
     # model plot
     output$modelPlot <- renderPlot({
@@ -140,13 +143,6 @@ server <- shinyServer(function(input, output, session) {
       model()$mat$table
     })
     # download model plot
-    savePlot <- function(){
-      if (input$modelName == "knn"){
-        plot(model()$fit)
-      } else {
-        plot(model()$fit$finalModel)
-      }
-    }
     output$downloadP <- downloadHandler(
       filename = function(){
         "modeling.png"
@@ -154,7 +150,7 @@ server <- shinyServer(function(input, output, session) {
       content = function(file){
         png(file)
         if (input$modelName == "knn"){
-          plot(model()$fit)
+          print(vals$plot)
         } else {
           plot(model()$fit$finalModel)
         }
@@ -169,7 +165,6 @@ server <- shinyServer(function(input, output, session) {
     )
     
     # user input prediction
-    
     pred <- eventReactive(input$predictNow, {
       req(model())
       newdata <- data.frame(radius_mean = input$radius_mean, 
