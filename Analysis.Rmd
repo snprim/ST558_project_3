@@ -13,8 +13,6 @@ library(ggfortify)
 library(plotly)
 ```
 
-* add math symbols
-
 # Read in data  
 
 ```{r}
