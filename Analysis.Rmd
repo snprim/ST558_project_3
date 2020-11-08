@@ -14,6 +14,8 @@ library(plotly)
 ```
 
 * allow users to put in values for prediction
+* How to leave full data table in the beginning for data?
+* work on the about page
 
 # Read in data  
 
@@ -23,6 +25,7 @@ breast <- read_csv("data.csv")
 ```{r, breast cancer}
 # breast$diag <- ifelse(breast$diagnosis == "M", 1, 0)
 breast1 <- breast %>% select(-X33)
+breast1 %>% select(-id, -diagnosis) %>% summary()
 train1 <- sample(1:nrow(breast1), size = nrow(breast1)*0.8)
 test1 <- setdiff(1:nrow(breast1), train1)
 trainBreast <- breast1[train1,]

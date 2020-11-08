@@ -12,7 +12,7 @@ library(plotly)
 
 
 breast <- read_csv("../data.csv") %>% select(-X33)
-breast1C <- breast %>% select(-id, -diagnosis)
+breast1C <- breast %>% select(-id, -diagnosis) %>% rename(concave_points_mean = `concave points_mean`, concave_points_se = `concave points_se`, concave_points_worst = `concave points_worst`)
 
 ui <- dashboardPage(
                     dashboardHeader(
@@ -37,14 +37,21 @@ ui <- dashboardPage(
                             tabItem(
                                 tabName = "about",
                                 fluidRow(
-                                    column(6, 
+                                    column(6,
                                            h3("About this dataset"),
-                                           h4("This dataset can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic")))),
+                                           h4("This dataset from 1995 contains data from Wisconsin about breast cancer. It can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic"))),
+                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest values of these characteristics are included. The goal is to use these predictors to predict whether the mass is benign or malignant, which is indicated in the variable", strong("diagnosis."))
+                                           ),
                                     column(6, 
                                            h3("How to use this app"),
-                                           h4("On the left hand side, you can see various tabs, which lead to different pages with various options.", span("On top there is a button where you can click to make the tabs disappear or appear.", style = "font-style:italic"), "By closing the tabs, the main body of the app appears larger.")
-                                           ),
-                                )
+                                           h4("On the lefthand side, you can see five tabs, which lead to different pages with various options.", span("On top there is a button where you can click to make the tabs disappear or appear.", style = "font-style:italic"), "By closing the tabs, the main body of the app appears larger."),
+                                           h4("Each tab provides options for different information or functions. The first tab", strong("About"), "provides information about the dataset and how to use this Shiny app, as you are reading."),
+                                           h4("The second tab,", strong("Data Summaries,"), "first presents a bar plot and summaries of the response variable", em("diagnosis."), "Then you can choose one variable to see its histogram and summary statistics. You can also choose two variables to see their scatterplot. Notice that the scatterplot is interactive; you can hover over points or zoom in as needed."),
+                                           h4("The third tab,", strong("Principal Component Analysis (PCA),"), "leads to a page where you can choose a number of variables to see how they contribute to the first two principal components."),
+                                           h4("The fourth tab,", strong("Modeling,"), "first offers options to choose a model, variables, and output type (confusion matrix, accuracy statistics, or both). The users can then set values of predictors to see the prediction and accuracy statistics."),
+                                           h4("The last tab,", strong("Subset and Save Data,"), "is where you can choose the variables to be included in the dataset and then download it. If you would like a full dataset, choose", em("select all"), "and then download it.")
+                                           )
+                                           )
                             ),
                             tabItem(
                                 tabName = "visual",
@@ -81,10 +88,6 @@ ui <- dashboardPage(
                                            actionButton("PCAVarzSelected", "Run PCA now"),
                                            actionButton("selectAllP", "Select All"),
                                            actionButton("clearAllP", "Clear All")
-                                           
-                                           
-                                           # checkboxGroupInput("pcaVarz", "Select Variables and click 'Run PCA'", choices = colnames(breast1C)),
-                                           # actionButton("runPCA", "Run PCA now")
                                            )
                                        ),
                                 column(9,
@@ -103,11 +106,56 @@ ui <- dashboardPage(
                                            radioButtons("outputType", "What type of text output would you like to see?", choices = c("Confusion matrix" = "conMat", "Accuracy statistics" = "acc", "Both" = "both")),
                                            conditionalPanel(condition = "input.modelName == 'knn'", sliderInput("k", "Enter k range", min = 2, max = 10, value = c(5,6))),
                                            conditionalPanel(condition = "input.modelName == 'ranfor'", sliderInput("mtry", "Enter mtry", min = 2, max = 10, value = 5) ),
-                                           selectInput("modelVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
+                                           #selectInput("modelVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
+                                           selectInput("modelVarz", "Choose variables for the model", multiple = TRUE, choices = c("radius_mean" = "radius_mean",
+                           "texture_mean" = "texture_mean",
+                           "perimeter_mean" = "perimeter_mean",
+                           "area_mean" = "area_mean",
+                           "smoothness_mean" = "smoothness_mean",
+                           "compactness_mean" = "compactness_mean",
+                           "concavity_mean" = "concavity_mean",
+                           "concave_points_mean" = "concave_points_mean",
+                           "symmetry_mean" = "symmetry_mean",
+                           "fractal_dimension_mean" = "fractal_dimension_mean",
+                           "radius_se" = "radius_se",
+                           "texture_se" = "texture_se",
+                           "perimeter_se" = "perimeter_se",
+                           "area_se" = "area_se",
+                           "smoothness_se" = "smoothness_se",
+                           "compactness_se" = "compactness_se",
+                           "concavity_se" = "concavity_se",
+                           "concave_points_se" = "concave_points_se",
+                           "symmetry_se" = "symmetry_se",
+                           "fractal_dimension_se" = "fractal_dimension_se"
+                           )),
                                            actionButton("runModel", "Run"),
                                            actionButton("selectAllM", "Select All"),
                                            actionButton("clearAllM", "Clear All"),
                                            downloadButton("downloadP", "Download Plot")
+                                           ),
+                                       box(width = 12,
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('radius_mean') > -1", sliderInput("radius_mean", "radius_mean", min = 6, max = 28, step = 0.1, value = 14)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('texture_mean') > -1", sliderInput("texture_mean", "texture_mean", min = 9, max = 40, step = 0.1, value = 19)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('perimeter_mean') > -1", sliderInput("perimeter_mean", "perimeter_mean", min = 43, max = 190, step = 0.1, value = 92)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('area_mean') > -1", sliderInput("area_mean", "area_mean", min = 143, max = 2501, step = 0.1, value = 655)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('smoothness_mean') > -1", sliderInput("smoothness_mean", "smoothness_mean", min = 0.05, max = 0.2, step = 0.01, value = 0.1)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('compactness_mean') > -1", sliderInput("compactness_mean", "compactness_mean", min = 0.01, max = 0.34, step = 0.01, value = 0.1)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concavity_mean') > -1", sliderInput("concavity_mean", "concavity_mean", min = 0, max = 0.42, step = 0.01, value = 0.09)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concave_points_mean') > -1", sliderInput("concave_points_mean", "concave_points_mean", min = 0, max = 0.2, step = 0.01, value = 0.05)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('symmetry_mean') > -1", sliderInput("symmetry_mean", "symmetry_mean", min = 0.1, max = 0.3, step = 0.01, value = 0.18)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('fractal_dimension_mean') > -1", sliderInput("fractal_dimension_mean", "fractal_dimension_mean", min = 0.04, max = 0.1, step = 0.01, value = 0.06)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('radius_se') > -1", sliderInput("radius_se", "radius_se", min = 0.1, max = 2.9, step = 0.01, value = 0.4)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('texture_se') > -1", sliderInput("texture_se", "texture_se", min = 0.36, max = 4.9, step = 0.01, value = 1.22)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('perimeter_se') > -1", sliderInput("perimeter_se", "perimeter_se", min = 0.8, max = 22, step = 0.1, value = 2.9)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('area_se') > -1", sliderInput("area_se", "area_se", min = 6, max = 543, step = 0.1, value = 40)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('smoothness_se') > -1", sliderInput("smoothness_se", "smoothness_se", min = 0, max = 0.3, step = 0.001, value = 0.007)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('compactness_se') > -1", sliderInput("compactness_se", "compactness_se", min = 0.01, max = 0.34, step = 0.01, value = 0.1)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concavity_mean') > -1", sliderInput("concavity_mean", "concavity_mean", min = 0, max = 0.42, step = 0.01, value = 0.09)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concave_points_mean') > -1", sliderInput("concave_points_mean", "concave_points_mean", min = 0, max = 0.2, step = 0.01, value = 0.05)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('symmetry_mean') > -1", sliderInput("symmetry_mean", "symmetry_mean", min = 0.1, max = 0.3, step = 0.01, value = 0.18)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('fractal_dimension_mean') > -1", sliderInput("fractal_dimension_mean", "fractal_dimension_mean", min = 0.04, max = 0.1, step = 0.01, value = 0.06)),
+                                           
+                                           actionButton("predictNow", "Create Prediction")
                                            )
                                        ),
                                 column(9,
@@ -118,7 +166,10 @@ ui <- dashboardPage(
                                            conditionalPanel(condition = "input.outputType == 'conMat' || input.outputType == 'both'", tableOutput("confusion")),
                                            conditionalPanel(condition = "input.outputType == 'acc' || input.outputType == 'both'", DT::dataTableOutput("accuracy")),
                                            plotOutput("modelPlot")
-                                           )
+                                           ),
+                                       box(width = 12,
+                                           h4("The prediction from your input is: "),
+                                           tableOutput("newPred"))
                                        )
                               )
                             ),

@@ -17,11 +17,11 @@ library(plotly)
 server <- shinyServer(function(input, output, session) { 
     # set up three datasets: first one full
     getData <- reactive({
-      breast <- read_csv("../data.csv") %>% select(-X33)
+      breast <- read_csv("../data.csv") %>% select(-X33) %>% rename(concave_points_mean = `concave points_mean`, concave_points_se = `concave points_se`, concave_points_worst = `concave points_worst`)
     })
     # this one with only continuous variables
     getData1 <- reactive({
-      breast1C <- getData() %>% select(-id, -diagnosis)
+      breast1C <- getData() %>% select(-id, -diagnosis) 
     })
     # Visualization page
     # create bar plot for diagnosis
@@ -158,6 +158,27 @@ server <- shinyServer(function(input, output, session) {
         ggsave(file, plot = savePlot(), device = device)
       }
     )
+    
+    # user input prediction
+    
+    pred <- eventReactive(input$predictNow, {
+      req(model())
+      newdata <- data.frame(radius_mean = input$radius_mean, 
+                            texture_mean = input$texture_mean,
+                            perimeter_mean = input$perimeter_mean,
+                            area_mean = input$area_mean,
+                            smoothness_mean = input$smoothness_mean,
+                            compactness_mean = input$compactness_mean,
+                            concavity_mean = input$concavity_mean,
+                            concave_points_mean = input$concave_points_mean,
+                            symmetry_mean = input$symmetry_mean,
+                            fractal_dimension_mean = input$fractal_dimension_mean)
+      result <- predict(model()$fit, newdata)
+    })
+    
+    output$newPred <- renderTable({
+      data.frame(Prediction = pred())
+    })
     # Data page
     # show data table
     subset <- eventReactive(input$datVarzSelected, {
