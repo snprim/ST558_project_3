@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-7
+# Date: 2020-11-8
 #
 
 library(shiny)
@@ -152,11 +152,20 @@ server <- shinyServer(function(input, output, session) {
         "modeling.png"
       },
       content = function(file){
-        device <- function(..., width, height){
-          grDevices::png(..., width = width, height = height, res = 300, units = "in")
+        png(file)
+        if (input$modelName == "knn"){
+          plot(model()$fit)
+        } else {
+          plot(model()$fit$finalModel)
         }
-        ggsave(file, plot = savePlot(), device = device)
+        dev.off()
       }
+      # content = function(file){
+      #   device <- function(..., width, height){
+      #     grDevices::png(..., width = width, height = height, res = 300, units = "in")
+      #   }
+      #   ggsave(file, plot = savePlot(), device = device)
+      # }
     )
     
     # user input prediction
@@ -172,7 +181,28 @@ server <- shinyServer(function(input, output, session) {
                             concavity_mean = input$concavity_mean,
                             concave_points_mean = input$concave_points_mean,
                             symmetry_mean = input$symmetry_mean,
-                            fractal_dimension_mean = input$fractal_dimension_mean)
+                            fractal_dimension_mean = input$fractal_dimension_mean,
+                            radius_se = input$radius_se, 
+                            texture_se = input$texture_se,
+                            perimeter_se = input$perimeter_se,
+                            area_se = input$area_se,
+                            smoothness_se = input$smoothness_se,
+                            compactness_se = input$compactness_se,
+                            concavity_se = input$concavity_se,
+                            concave_points_se = input$concave_points_se,
+                            symmetry_se = input$symmetry_se,
+                            fractal_dimension_se = input$fractal_dimension_se,
+                            radius_worst = input$radius_worst, 
+                            texture_worst = input$texture_worst,
+                            perimeter_worst = input$perimeter_worst,
+                            area_worst = input$area_worst,
+                            smoothness_worst = input$smoothness_worst,
+                            compactness_worst = input$compactness_worst,
+                            concavity_worst = input$concavity_worst,
+                            concave_points_worst = input$concave_points_worst,
+                            symmetry_worst = input$symmetry_worst,
+                            fractal_dimension_worst = input$fractal_dimension_worst
+                            )
       result <- predict(model()$fit, newdata)
     })
     

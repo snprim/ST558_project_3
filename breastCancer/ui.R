@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-7
+# Date: 2020-11-8
 #
 
 library(shiny)
@@ -40,7 +40,7 @@ ui <- dashboardPage(
                                     column(6,
                                            h3("About this dataset"),
                                            h4("This dataset from 1995 contains data from Wisconsin about breast cancer. It can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic"))),
-                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest values of these characteristics are included. The goal is to use these predictors to predict whether the mass is benign or malignant, which is indicated in the variable", strong("diagnosis."))
+                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes 10 characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest (worst) values of these characteristics are included. Thus there are 30 predictors in total and 1 response variable. The goal is to use these predictors to predict whether the mass is benign or malignant, which is indicated in the variable", strong("diagnosis."))
                                            ),
                                     column(6, 
                                            h3("How to use this app"),
@@ -126,7 +126,17 @@ ui <- dashboardPage(
                            "concavity_se" = "concavity_se",
                            "concave_points_se" = "concave_points_se",
                            "symmetry_se" = "symmetry_se",
-                           "fractal_dimension_se" = "fractal_dimension_se"
+                           "fractal_dimension_se" = "fractal_dimension_se",
+                           "radius_worst" = "radius_worst",
+                           "texture_worst" = "texture_worst",
+                           "perimeter_worst" = "perimeter_worst",
+                           "area_worst" = "area_worst",
+                           "smoothness_worst" = "smoothness_worst",
+                           "compactness_worst" = "compactness_worst",
+                           "concavity_worst" = "concavity_worst",
+                           "concave_points_worst" = "concave_points_worst",
+                           "symmetry_worst" = "symmetry_worst",
+                           "fractal_dimension_worst" = "fractal_dimension_worst"
                            )),
                                            actionButton("runModel", "Run"),
                                            actionButton("selectAllM", "Select All"),
@@ -149,12 +159,21 @@ ui <- dashboardPage(
                                            conditionalPanel(condition = "input.modelVarz.indexOf('perimeter_se') > -1", sliderInput("perimeter_se", "perimeter_se", min = 0.8, max = 22, step = 0.1, value = 2.9)),
                                            conditionalPanel(condition = "input.modelVarz.indexOf('area_se') > -1", sliderInput("area_se", "area_se", min = 6, max = 543, step = 0.1, value = 40)),
                                            conditionalPanel(condition = "input.modelVarz.indexOf('smoothness_se') > -1", sliderInput("smoothness_se", "smoothness_se", min = 0, max = 0.3, step = 0.001, value = 0.007)),
-                                           conditionalPanel(condition = "input.modelVarz.indexOf('compactness_se') > -1", sliderInput("compactness_se", "compactness_se", min = 0.01, max = 0.34, step = 0.01, value = 0.1)),
-                                           conditionalPanel(condition = "input.modelVarz.indexOf('concavity_mean') > -1", sliderInput("concavity_mean", "concavity_mean", min = 0, max = 0.42, step = 0.01, value = 0.09)),
-                                           conditionalPanel(condition = "input.modelVarz.indexOf('concave_points_mean') > -1", sliderInput("concave_points_mean", "concave_points_mean", min = 0, max = 0.2, step = 0.01, value = 0.05)),
-                                           conditionalPanel(condition = "input.modelVarz.indexOf('symmetry_mean') > -1", sliderInput("symmetry_mean", "symmetry_mean", min = 0.1, max = 0.3, step = 0.01, value = 0.18)),
-                                           conditionalPanel(condition = "input.modelVarz.indexOf('fractal_dimension_mean') > -1", sliderInput("fractal_dimension_mean", "fractal_dimension_mean", min = 0.04, max = 0.1, step = 0.01, value = 0.06)),
-                                           
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('compactness_se') > -1", sliderInput("compactness_se", "compactness_se", min = 0, max = 0.15, step = 0.01, value = 0.2)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concavity_se') > -1", sliderInput("concavity_se", "concavity_se", min = 0, max = 0.4, step = 0.01, value = 0.03)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concave_points_se') > -1", sliderInput("concave_points_se", "concave_points_se", min = 0, max = 0.05, step = 0.01, value = 0.01)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('symmetry_se') > -1", sliderInput("symmetry_se", "symmetry_se", min = 0, max = 0.08, step = 0.01, value = 0.02)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('fractal_dimension_se') > -1", sliderInput("fractal_dimension_se", "fractal_dimension_se", min = 0, max = 0.03, step = 0.001, value = 0.003)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('radius_worst') > -1", sliderInput("radius_worst", "radius_worst", min = 7.9, max = 36.1, step = 0.1, value = 16.3)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('texture_worst') > -1", sliderInput("texture_worst", "texture_worst", min = 12, max = 50, step = 0.1, value = 25.7)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('perimeter_worst') > -1", sliderInput("perimeter_worst", "perimeter_worst", min = 50, max = 252, step = 0.1, value = 107.3)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('area_worst') > -1", sliderInput("area_worst", "area_worst", min = 185, max = 4255, step = 1, value = 881)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('smoothness_worst') > -1", sliderInput("smoothness_worst", "smoothness_worst", min = 0.07, max = 0.22, step = 0.01, value = 0.13)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('compactness_worst') > -1", sliderInput("compactness_worst", "compactness_worst", min = 0.02, max = 1.06, step = 0.01, value = 0.25)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concavity_worst') > -1", sliderInput("concavity_worst", "concavity_worst", min = 0, max = 1.25, step = 0.01, value = 0.27)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('concave_points_worst') > -1", sliderInput("concave_points_worst", "concave_points_worst", min = 0, max = 0.3, step = 0.01, value = 0.11)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('symmetry_worst') > -1", sliderInput("symmetry_worst", "symmetry_worst", min = 0.1, max = 0.7, step = 0.01, value = 0.3)),
+                                           conditionalPanel(condition = "input.modelVarz.indexOf('fractal_dimension_worst') > -1", sliderInput("fractal_dimension_worst", "fractal_dimension_worst", min = 0.05, max = 0.21, step = 0.01, value = 0.08)),
                                            actionButton("predictNow", "Create Prediction")
                                            )
                                        ),
