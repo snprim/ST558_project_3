@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-8
+# Date: 2020-11-11
 #
 
 library(shiny)
@@ -28,7 +28,7 @@ server <- shinyServer(function(input, output, session) {
     # Visualization page
     # create bar plot for diagnosis
     output$bar <- renderPlot({
-        ggplot(getData(), aes(x = diagnosis)) + geom_bar() + ggtitle("Bar Plot of Diagnosis")
+        ggplot(getData(), aes(x = diagnosis)) + geom_bar() + ggtitle("Barplot of Diagnosis")
     })
     # create histogram
     output$plotHist <- renderPlot({
@@ -46,9 +46,9 @@ server <- shinyServer(function(input, output, session) {
     # summary statistic for response 
     output$diagSum <- DT::renderDataTable({
       x <- getData() %>% select(diagnosis) %>% apply(MARGIN = 2, FUN = summary)
-      DT::datatable(x)
+      DT::datatable(x, caption = "Summary statistics of diagnosis")
     })
-    # summary statistics
+    # summary statistics for selected variable
     sum <- reactive({
        req(input$histg)
        x <- getData() %>% select(input$histg) 
@@ -62,25 +62,23 @@ server <- shinyServer(function(input, output, session) {
       req(input$PCAVarz)
       sub <- getData1() %>% select(input$PCAVarz)
       PCs <- prcomp(sub, scale = TRUE)
-      plot2 <- autoplot(PCs, data = getData(), colour = "diagnosis", loadings = TRUE, loadings.colour = "blue", loadings.label = TRUE, loadings.label.size = 4)
-      list(sub = sub, PCs = PCs, plot2 = plot2)
+      plot <- autoplot(PCs, data = getData(), colour = "diagnosis", loadings = TRUE, loadings.colour = "blue", loadings.label = TRUE, loadings.label.size = 4)
+      list(sub = sub, PCs = PCs, plot = plot)
     })
-    # select all variables if selectAll is clicked
+    # select all variables if selectAllP is clicked
     observeEvent(input$selectAllP, {
       updateSelectInput(session, "PCAVarz", selected = colnames(getData1()))
     })
-    
+    # clear all variables if clearAllP is clicked
     observeEvent(input$clearAllP, {
       updateSelectInput(session, "PCAVarz", selected = NA)
     })
-    # output$pca1 <- renderPlot({
-    #   biplot(pca()$PCs, xlabs = rep(".", nrow(pca()$sub)), cex = 1.2)
-    # })
-    output$pca2 <- renderPlot({
-      pca()$plot2
+    output$pca <- renderPlot({
+      pca()$plot
     })
     
     # Model page
+    # run the chosen model
     model <- eventReactive(input$runModel, {
       req(input$modelVarz)
       data <- getData() %>% select(input$modelVarz, diagnosis)
@@ -105,27 +103,24 @@ server <- shinyServer(function(input, output, session) {
       colnames(tab) <- c("rate")
       list(mat = mat, tab = tab, fit = fit)
     })
-    
-    # output$selections <- renderTable({
-    #   paste(input$modelVarz, collapse = ",")
-    # })
-    
+    # select all variables if selectAllM is clicked
     observeEvent(input$selectAllM, {
         updateSelectInput(session, "modelVarz", selected = colnames(getData1()))
     })
-    
+    # clear all variables if clearAllM is clicked
     observeEvent(input$clearAllM, {
       updateSelectInput(session, "modelVarz", selected = NA)
     })
-    
+    # print out the predictors user selected
     output$predictors <- renderText({
-      model()$fit$coefnames
+      preds <- paste(model()$fit$coefnames, collapse = ", ")
+      paste0("The variables in your model are: ", preds)
     })
-    
+    # accuracy table
     output$accuracy <- DT::renderDataTable({
       model()$tab
     })
-    
+    # plot for the final model
     plotz <- eventReactive(input$runModel, {
       if (input$modelName == "knn"){
         plot <- plot(model()$fit, main = "")
@@ -157,12 +152,6 @@ server <- shinyServer(function(input, output, session) {
         }
         dev.off()
       }
-      # content = function(file){
-      #   device <- function(..., width, height){
-      #     grDevices::png(..., width = width, height = height, res = 300, units = "in")
-      #   }
-      #   ggsave(file, plot = savePlot(), device = device)
-      # }
     )
     
     # user input prediction
@@ -201,7 +190,13 @@ server <- shinyServer(function(input, output, session) {
                             )
       result <- predict(model()$fit, newdata)
     })
-    
+    # print out prediction result
+    output$newPredRes <- renderText({
+      input$predictNow
+      req(pred())
+      ifelse(pred() == "B", "The prediction is Benign.", "The prediction is Malignant.")
+    })
+    # prediction result dataframe
     output$newPred <- renderTable({
       data.frame(Prediction = pred())
     })
@@ -223,11 +218,11 @@ server <- shinyServer(function(input, output, session) {
     #     input$datVarzSelected
     #     DT::datatable(subset(), options = list(scrollX = TRUE))
     # })
-    # select all variables if selectAll is clicked
+    # select all variables if selectAllD is clicked
     observeEvent(input$selectAllD, {
-      updateSelectInput(session, "datVarz", selected = colnames(getData1()))
+      updateSelectInput(session, "datVarz", selected = colnames(getData()))
     })
-    
+    # clear all variables if selectAllD is clicked
     observeEvent(input$clearAllD, {
       updateSelectInput(session, "datVarz", selected = NA)
     })

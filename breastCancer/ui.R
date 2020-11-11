@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-8
+# Date: 2020-11-11
 #
 
 library(shiny)
@@ -39,17 +39,17 @@ ui <- dashboardPage(
                                 fluidRow(
                                     column(6,
                                            h3("About this dataset"),
-                                           h4("This dataset from 1995 contains data from Wisconsin about breast cancer. It can be found on Kaggle's ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "breast cancer dataset"), " which includes 569 data points.", "The same data set is listed on ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic"))),
-                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes 10 characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest (worst) values of these characteristics are included. Thus there are 30 predictors in total and 1 response variable. The goal is to use these predictors to predict whether the mass is benign or malignant, which is indicated in the variable", strong("diagnosis."))
+                                           h4("With 569 data points, this dataset from 1995 contains data from Wisconsin about breast cancer. It can be found on ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "Kaggle's breast cancer dataset"), "and ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic"))),
+                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes 10 characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest (worst) values of these characteristics are included. Thus there are 30 predictors in total. The goal is to use these predictors to predict whether the mass is benign (B) or malignant (M), which is indicated in the variable", strong("diagnosis."))
                                            ),
                                     column(6, 
                                            h3("How to use this app"),
-                                           h4("On the lefthand side, you can see five tabs, which lead to different pages with various options.", span("On top there is a button where you can click to make the tabs disappear or appear.", style = "font-style:italic"), "By closing the tabs, the main body of the app appears larger."),
-                                           h4("Each tab provides options for different information or functions. The first tab", strong("About"), "provides information about the dataset and how to use this Shiny app, as you are reading."),
+                                           h4("On the lefthand side, you can see five tabs, which lead to different pages with various options.", span("On top there is a button where you can click to make the tabs disappear or appear.", style = "font-style:italic"), "By closing the tabs, the main body of the app appears larger. Each tab provides options for different information or functions. "),
+                                           h4("The first tab", strong("About"), "provides information about the dataset and how to use this Shiny app, as you are reading."),
                                            h4("The second tab,", strong("Data Summaries,"), "first presents a bar plot and summaries of the response variable", em("diagnosis."), "Then you can choose one variable to see its histogram and summary statistics. You can also choose two variables to see their scatterplot. Notice that the scatterplot is interactive; you can hover over points or zoom in as needed."),
-                                           h4("The third tab,", strong("Principal Component Analysis (PCA),"), "leads to a page where you can choose a number of variables to see how they contribute to the first two principal components."),
-                                           h4("The fourth tab,", strong("Modeling,"), "first offers options to choose a model, variables, and output type (confusion matrix, accuracy statistics, or both). The users can then set values of predictors to see the prediction and accuracy statistics."),
-                                           h4("The last tab,", strong("Subset and Save Data,"), "is where you can choose the variables to be included in the dataset and then download it. If you would like a full dataset, choose", em("select all"), "and then download it.")
+                                           h4("The third tab,", strong("Principal Component Analysis (PCA),"), "leads to a page where you can choose a number of variables to see how they contribute to the first two principal components (PCs)."),
+                                           h4("The fourth tab,", strong("Modeling,"), "first offers options to choose a model, variables, and output type (confusion matrix, accuracy statistics, or both). The users can then set values of the selected predictors to see the prediction."),
+                                           h4("The last tab,", strong("Subset and Save Data,"), "is where you can view the entire dataset, choose the variables to subset the dataset, and download it.")
                                            )
                                            )
                             ),
@@ -58,8 +58,8 @@ ui <- dashboardPage(
                                 fluidRow(
                                   column(3,
                                          box(width = 12,
-                                             selectInput("histg", "Select a continuous variable for histogram and summary Statistics", choices = colnames(breast1C)),
-                                             sliderInput("breaks", "Select number of breaks for the histogram", value = 50, min = 30, max = 100),
+                                             selectInput("histg", "Select a variable for histogram and summary Statistics", choices = colnames(breast1C)),
+                                             sliderInput("breaks", "Select the number of breaks for the histogram", value = 50, min = 30, max = 100),
                                              selectizeInput("scatter", "Select two variables to plot a scatterplot", choices = colnames(breast1C), selected = NULL, multiple = TRUE, options = list(maxItems = 2, placeholder = 'select 2 variables')),
                                              actionButton("plotScatter", "Create Scatterplot")
                                              )
@@ -82,7 +82,7 @@ ui <- dashboardPage(
                               fluidRow(
                                 column(3,
                                        box(width = 12,
-                                           selectInput("PCAVarz", "Select Variables and click 'Run PCA'", choices = colnames(breast1C), multiple = TRUE),
+                                           selectInput("PCAVarz", "Select Variables and click 'Run PCA now'", choices = colnames(breast1C), multiple = TRUE),
                                            actionButton("PCAVarzSelected", "Run PCA now"),
                                            actionButton("selectAllP", "Select All"),
                                            actionButton("clearAllP", "Clear All")
@@ -90,7 +90,7 @@ ui <- dashboardPage(
                                        ),
                                 column(9,
                                        box(width = 12, 
-                                       plotOutput("pca2")
+                                       plotOutput("pca")
                                            )
                                        )
                               )
@@ -179,7 +179,6 @@ ui <- dashboardPage(
                                        ),
                                 column(9,
                                        box(width = 12,
-                                           h4("The variables in your model are: "),
                                            textOutput("predictors"),
                                            br(),
                                            conditionalPanel(condition = "input.outputType == 'conMat' || input.outputType == 'both'", tableOutput("confusion")),
@@ -187,7 +186,8 @@ ui <- dashboardPage(
                                            plotOutput("modelPlot")
                                            ),
                                        box(width = 12,
-                                           h4("The prediction from your input is: "),
+                                           textOutput("newPredRes"),
+                                           br(),
                                            tableOutput("newPred"))
                                        )
                               )
@@ -197,16 +197,14 @@ ui <- dashboardPage(
                                 fluidRow(
                                     column(3,
                                            box(width = 12,
-                                               selectInput("datVarz", "Choose variables for the model", choices = colnames(breast1C), multiple = TRUE),
+                                               selectInput("datVarz", "Choose variables to subset the dataset", choices = colnames(breast), multiple = TRUE),
                                                actionButton("datVarzSelected", "View Datatable"),
                                                actionButton("selectAllD", "Select All"),
                                                actionButton("clearAllD", "Clear All"),
                                                downloadButton("download", "Download File")
-                                               # checkboxGroupInput("varz", "To download the dataset, select variables, click 'View Datatable', and then 'Download File'.", choices = colnames(breast))
                                                )
                                            ),
                                     column(9,
-                                           h4("Please select variables below and then click 'View Datatable'"),
                                            box(width = 12,
                                                DT::dataTableOutput("tab"))
                                            )
