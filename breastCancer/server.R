@@ -114,7 +114,7 @@ server <- shinyServer(function(input, output, session) {
     # print out the predictors user selected
     output$predictors <- renderText({
       preds <- paste(model()$fit$coefnames, collapse = ", ")
-      paste0("The variables in your model are: ", preds)
+      paste0("The predictors in your model are: ", preds)
     })
     # accuracy table
     output$accuracy <- DT::renderDataTable({
