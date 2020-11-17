@@ -2,7 +2,7 @@
 # Author: Shih-Ni Prim
 # Course: ST 558
 # Project 3
-# Date: 2020-11-11
+# Date: 2020-11-17
 #
 
 library(shiny)
@@ -35,30 +35,32 @@ ui <- dashboardPage(
                     dashboardBody(
                         tabItems(
                             tabItem(
+                              # About page
                                 tabName = "about",
                                 fluidRow(
                                     column(6,
                                            h3("About this dataset"),
                                            h4("With 569 data points, this dataset from 1995 contains data from Wisconsin about breast cancer. It can be found on ", tags$a(href = "https://www.kaggle.com/uciml/breast-cancer-wisconsin-data", "Kaggle's breast cancer dataset"), "and ", tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)", span(" UCI Machine Learning Repository.", style = "font-style:italic"))),
-                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes 10 characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest (worst) values of these characteristics are included. Thus there are 30 predictors in total. The goal is to use these predictors to predict whether the mass is benign (B) or malignant (M), which is indicated in the variable", strong("diagnosis."))
+                                           h4("Each row presents measurements of a fine needle aspirate (FNA) of a breast mass and describes 10 characteristics of the cell nuclei, including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. Means, standards, largest (worst) values of these characteristics are included. Thus there are 30 predictors in total. This app allows for visualization and modeling, including supervised and unsupervised learning. The goal is to use some or all of the 30 predictors to predict whether the mass is benign (B) or malignant (M), which is indicated in the variable", strong("diagnosis."))
                                            ),
                                     column(6, 
                                            h3("How to use this app"),
-                                           h4("On the lefthand side, you can see five tabs, which lead to different pages with various options.", span("On top there is a button where you can click to make the tabs disappear or appear.", style = "font-style:italic"), "By closing the tabs, the main body of the app appears larger. Each tab provides options for different information or functions. "),
+                                           h4("On the lefthand side, you can see five tabs, which lead to different pages with various options. On top there is a button where you can click to make the tabs disappear or appear. By closing the tabs, the main body of the app appears larger. Each tab provides options for different information or functions. "),
                                            h4("The first tab", strong("About"), "provides information about the dataset and how to use this Shiny app, as you are reading."),
                                            h4("The second tab,", strong("Data Summaries,"), "first presents a bar plot and summaries of the response variable", em("diagnosis."), "Then you can choose one variable to see its histogram and summary statistics. You can also choose two variables to see their scatterplot. Notice that the scatterplot is interactive; you can hover over points or zoom in as needed."),
                                            h4("The third tab,", strong("Principal Component Analysis (PCA),"), "leads to a page where you can choose a number of variables to see how they contribute to the first two principal components (PCs)."),
-                                           h4("The fourth tab,", strong("Modeling,"), "first offers options to choose a model, variables, and output type (confusion matrix, accuracy statistics, or both). The users can then set values of the selected predictors to see the prediction."),
-                                           h4("The last tab,", strong("Subset and Save Data,"), "is where you can view the entire dataset, choose the variables to subset the dataset, and download it.")
+                                           h4("The fourth tab,", strong("Modeling,"), "first offers options to choose a model, variables, and output type (confusion matrix, accuracy statistics, or both). You can then set values of the selected predictors to see the prediction."),
+                                           h4("The last tab,", strong("Subset and Save Data,"), "is where you can view the entire dataset, choose the variables to subset the dataset, and download the .csv file.")
                                            )
                                            )
                             ),
                             tabItem(
+                              # data summaries
                                 tabName = "visual",
                                 fluidRow(
                                   column(3,
                                          box(width = 12,
-                                             selectInput("histg", "Select a variable for histogram and summary Statistics", choices = colnames(breast1C)),
+                                             selectInput("histg", "Select a variable for histogram and summary statistics", choices = colnames(breast1C)),
                                              sliderInput("breaks", "Select the number of breaks for the histogram", value = 50, min = 30, max = 100),
                                              selectizeInput("scatter", "Select two variables to plot a scatterplot", choices = colnames(breast1C), selected = NULL, multiple = TRUE, options = list(maxItems = 2, placeholder = 'select 2 variables')),
                                              actionButton("plotScatter", "Create Scatterplot")
@@ -78,11 +80,12 @@ ui <- dashboardPage(
                                 
                             )),
                             tabItem(
+                              # PCA page
                               tabName = "cluster",
                               fluidRow(
                                 column(3,
                                        box(width = 12,
-                                           selectInput("PCAVarz", "Select Variables and click 'Run PCA now'", choices = colnames(breast1C), multiple = TRUE),
+                                           selectInput("PCAVarz", "Select variables and click 'Run PCA now'", choices = colnames(breast1C), multiple = TRUE),
                                            actionButton("PCAVarzSelected", "Run PCA now"),
                                            actionButton("selectAllP", "Select All"),
                                            actionButton("clearAllP", "Clear All")
@@ -96,6 +99,7 @@ ui <- dashboardPage(
                               )
                             ),
                             tabItem(
+                              # modeling page
                               tabName = "model",
                               fluidRow(
                                 column(3,
@@ -144,6 +148,7 @@ ui <- dashboardPage(
                                            downloadButton("downloadP", "Download Plot")
                                            ),
                                        box(width = 12,
+                                           h5(strong("Set values to the predictors in the model to create a prediction")),
                                            conditionalPanel(condition = "input.modelVarz.indexOf('radius_mean') > -1", sliderInput("radius_mean", "radius_mean", min = 6, max = 28, step = 0.1, value = 14)),
                                            conditionalPanel(condition = "input.modelVarz.indexOf('texture_mean') > -1", sliderInput("texture_mean", "texture_mean", min = 9, max = 40, step = 0.1, value = 19)),
                                            conditionalPanel(condition = "input.modelVarz.indexOf('perimeter_mean') > -1", sliderInput("perimeter_mean", "perimeter_mean", min = 43, max = 190, step = 0.1, value = 92)),
