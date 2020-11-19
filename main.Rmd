@@ -13,6 +13,8 @@ output: github_document
 * ggfortify
 * plotly
 
+Use this line of code to install all required packages:  
+
 ```{r, echo = TRUE, eval = FALSE}
 install.packages(c("shiny", "shinydashboard", "tidyverse", "DT", "caret", "ggfortify", "plotly"))
 ```

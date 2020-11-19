@@ -11,7 +11,7 @@ Shiny App
   - ggfortify
   - plotly
 
-<!-- end list -->
+Use this line of code to install all required packages:
 
 ``` r
 install.packages(c("shiny", "shinydashboard", "tidyverse", "DT", "caret", "ggfortify", "plotly"))
